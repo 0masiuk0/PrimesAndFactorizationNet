@@ -10,18 +10,18 @@ namespace primes.net
 	public class SieveOfEratosthenes : ISieve
 	{
 		private BitArray Data;
-		public int Length => Data.Length;
+		public int SieveSize => Data.Length;
 
-		public SieveOfEratosthenes(int length)
+		public SieveOfEratosthenes(int sieveSize)
 		{
-			Data = new BitArray(length);
+			Data = new BitArray(sieveSize);
 			Data.SetAll(true);
 
-			for (int p = 2; p * p < length; p++)
+			for (int p = 2; p * p < sieveSize; p++)
 			{
 				if (Data[p])
 				{
-					for (int i = p * p; i < Length; i += p)
+					for (int i = p * p; i < SieveSize; i += p)
 					{
 						Data[i] = false;
 					}
@@ -31,7 +31,7 @@ namespace primes.net
 
 		public void ListPrimes(Action<ulong> callback)
 		{
-			for (int i = 2; i < Length; i++)
+			for (int i = 2; i < SieveSize; i++)
 			{
 				if (Data[i]) callback.Invoke((ulong)i);
 			}
@@ -49,7 +49,7 @@ namespace primes.net
 		private static byte[] Masks = { 1, 2, 4, 8, 16, 32, 64, 128 };
 		private static uint[][] OffsetsPerByte;
 
-		private ulong Length;
+		private ulong SieveSize;
 		private ulong[] FirstPrimes;
 		private ulong[][] PrimeMultiples;
 
@@ -68,10 +68,10 @@ namespace primes.net
 			}
 		}
 
-		public PrimesSieve(ulong length)
-		{
-			Length = length;
-			int firstChunkLength = (int)Math.Sqrt(length) + 1;
+		public PrimesSieve(ulong sieveSize)
+		{			
+			this.SieveSize = sieveSize;
+			int firstChunkLength = (int)Math.Sqrt(sieveSize) + 1;
 			SieveOfEratosthenes sieve = new SieveOfEratosthenes(firstChunkLength);
 			List<ulong> firstPrimes = new List<ulong>();
 			sieve.ListPrimes(firstPrimes.Add);
@@ -125,9 +125,9 @@ namespace primes.net
 
 		public IEnumerable<ulong> Primes()
 		{
-			foreach (ulong prime in SkipPrimes) if (prime < Length) yield return prime;
+			foreach (ulong prime in SkipPrimes) if (prime < SieveSize) yield return prime;
 
-			ulong max = (Length + WHEEL - 1) / WHEEL;
+			ulong max = (SieveSize + WHEEL - 1) / WHEEL;
 			byte[] segmentData = new byte[BUFFER_LENGTH];
 			ulong segmentStart = 1;
 			ulong segmentEnd = Math.Min(segmentStart + BUFFER_LENGTH, max);
@@ -142,7 +142,7 @@ namespace primes.net
 					for (int j = 0; j < offsets.Length; j++)
 					{
 						ulong p = offset + offsets[j];
-						if (p >= Length) break;
+						if (p >= SieveSize) break;
 						yield return p;
 					}
 				}
