@@ -18,7 +18,7 @@ namespace PrimesAndFactorizationNet
 		static ulong _sievedRangeOfIntegers = 0;
 		static object _cacheUpdateLock = new();
 
-		public static ulong BiggestCachedPrime { get => _sievedRangeOfIntegers; }
+		public static ulong CoveredRangeOfIntegers { get => _sievedRangeOfIntegers; }
 
 		
 		static PrimesCache()
