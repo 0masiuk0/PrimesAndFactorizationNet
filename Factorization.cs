@@ -23,7 +23,7 @@ namespace PrimesAndFactorizationNet
 		public ulong[] GetPrimeFactors(ulong number)
 		{
 			List<ulong> factors = new();
-			ulong upperLimit = ISqrt(number);
+			ulong upperLimit = FactorizatorHelpers.ISqrt(number);
 
 			if (upperLimit > UpperLimitOfPrimeFactors)
 				throw new ArgumentException($"Cached range of integers (<{UpperLimitOfPrimeFactors}) " +
@@ -41,7 +41,7 @@ namespace PrimesAndFactorizationNet
 
 					factors.Add(prime);
 
-					currentLimit = ISqrt(number) + 1;
+					currentLimit = FactorizatorHelpers.ISqrt(number) + 1;
 				}
 			}
 			if (number != 1)
@@ -125,7 +125,7 @@ namespace PrimesAndFactorizationNet
 			ulong result = 1;
 			foreach (KeyValuePair<ulong, int> pair in powers)
 			{
-				result *= IntPow(pair.Key, pair.Value);
+				result *= FactorizatorHelpers.IntPow(pair.Key, pair.Value);
 			}
 			return result;
 		}
@@ -144,7 +144,7 @@ namespace PrimesAndFactorizationNet
 				ulong result = 1;
 				foreach(var pair in combo)
 				{
-					result *= IntPow(pair.Item1, pair.Item2);
+					result *= FactorizatorHelpers.IntPow(pair.Item1, pair.Item2);
 				}
 				yield return result;
 			}
@@ -153,52 +153,7 @@ namespace PrimesAndFactorizationNet
 
 		public IEnumerable<ulong> GetProperFactors(ulong number) => GetAllFactors(number).SkipLast(1);
 
-		static ulong IntPow(ulong x, int pow)
-		{
-			if (pow < 0)
-			{
-				throw new ArgumentOutOfRangeException("Cannot raise to negative power in integers");
-			}
-
-			ulong ret = 1;
-			while (pow != 0)
-			{
-				if ((pow & 1) == 1)
-					ret *= x;
-				x *= x;
-				pow >>= 1;
-			}
-			return ret;
-		}		
-
 		#region helpers
-		private static ulong ISqrt(ulong n)
-		{
-			if (n == 0) return 0;
-			if (n > 0)
-			{
-				int bitLength = Convert.ToInt32(Math.Ceiling(Math.Log(n, 2)));
-				ulong root = 1UL << (bitLength / 2);
-
-				while (!isSqrt(n, root))
-				{
-					root += n / root;
-					root /= 2;
-				}
-
-				return root;
-			}
-
-			throw new ArithmeticException("NaN");
-		}
-
-		private static Boolean isSqrt(ulong n, ulong root)
-		{
-			ulong lowerBound = root * root;
-			ulong upperBound = (root + 1) * (root + 1);
-
-			return (n >= lowerBound && n < upperBound);
-		}
 
 		private static (int, int) CalculateSegmentIndex(ulong index, int segmentLength)
 		{

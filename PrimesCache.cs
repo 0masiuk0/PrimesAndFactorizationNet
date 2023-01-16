@@ -25,7 +25,7 @@ namespace PrimesAndFactorizationNet
 		{
 			lock (_cacheUpdateLock)
 			{
-				PopulateCacheFromScratch(DFAULT_CACHE_UPPER_LIMIT);
+				ClearAndRecalculateCache(DFAULT_CACHE_UPPER_LIMIT);
 			}
 		}
 
@@ -35,12 +35,12 @@ namespace PrimesAndFactorizationNet
 			{
 				lock (_cacheUpdateLock)
 				{
-					PopulateCacheFromScratch(upperLimit);
+					ClearAndRecalculateCache(upperLimit);
 				}
 			}
 		}
 
-		private static void PopulateCacheFromScratch(ulong upper_limit)
+		public static void ClearAndRecalculateCache(ulong upper_limit)
 		{
 			_primes = new ConcurrentDictionary<ulong, ulong>();
 			PrimesSieve sieve = new PrimesSieve(upper_limit);
@@ -114,9 +114,9 @@ namespace PrimesAndFactorizationNet
 		{
 			if (number == 1) return false;
 			if (number == 2 || number == 3 || number == 5) return true;
-			if (number % 2 == 0 || number % 3 == 0 || number % 5 == 0) return false;
+			if (number % 2UL == 0 || number % 3UL == 0 || number % 5UL == 0) return false;
 
-			var boundary = (ulong)Math.Floor(Math.Sqrt(number));
+			var boundary = FactorizatorHelpers.ISqrt(number);
 
 			// You can do less work by observing that at this point, all primes 
 			// other than 2 and 3 leave a remainder of either 1 or 5 when divided by 6. 
