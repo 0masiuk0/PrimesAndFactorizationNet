@@ -20,9 +20,8 @@ namespace PrimesAndFactorizationNet
 			}
 		}
 
-		public ulong[] GetPrimeFactors(ulong number)
-		{
-			List<ulong> factors = new();
+		public IEnumerable<ulong> GetPrimeFactors(ulong number)
+		{			
 			ulong upperLimit = IntegerExponentiation.ISqrt(number);
 
 			if (upperLimit > UpperLimitOfPrimeFactors)
@@ -39,15 +38,13 @@ namespace PrimesAndFactorizationNet
 				{
 					number = number / prime;
 
-					factors.Add(prime);
+					yield return prime;
 
 					currentLimit = IntegerExponentiation.ISqrt(number) + 1;
 				}
 			}
 			if (number != 1)
-				factors.Add(number);
-
-			return factors.ToArray();
+				yield return number;
 		}
 
 		public Dictionary<ulong, int> FactorizeAsPowersOfPrimes(ulong number)

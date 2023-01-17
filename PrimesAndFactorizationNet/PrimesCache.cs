@@ -114,6 +114,9 @@ namespace PrimesAndFactorizationNet
 
 		public static void ExtendPrimesCacheBySearch(ulong stopSearchThreshold)
 		{
+			if (stopSearchThreshold <= _sievedRangeOfIntegers)
+				return;
+
 			lock (_cacheUpdateLock)
 			{
 				ulong nextPrime;
@@ -148,36 +151,33 @@ namespace PrimesAndFactorizationNet
 			if (_biggestPrimeCached % 6UL == 1)
 			{
 				candidate = _biggestPrimeCached + 4UL;
-				increment = 2;
+				increment = 2UL;
 			}
 			else
 			{
 				candidate = _biggestPrimeCached + 2UL;
-				increment = 4;
+				increment = 4UL;
 			}			
 
 			while (true)
 			{
 				var boundary = IntegerExponentiation.ISqrt(candidate);
-				foreach (var prime in Primes())
+				foreach (var prime in Primes().Skip(2))
 				{
-					if (prime >= boundary || candidate % prime == 0)
+					if (prime > boundary)
+						return candidate;
+
+					if (candidate % prime == 0)
 					{
 						foundOne = false;
 						break;
 					}
 				}
 
-				if (foundOne)
-				{
-					return candidate;
-				}
-				else
-				{
-					foundOne = true;
-					candidate += increment;
-					increment = increment == 2UL ? 4UL : 2UL;
-				}
+				foundOne = true;
+				candidate += increment;
+				increment = increment == 2UL ? 4UL : 2UL;
+				
 			}
 		}
 

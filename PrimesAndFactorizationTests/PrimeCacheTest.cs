@@ -67,5 +67,20 @@ namespace PrimesAndFactorizationTests
 		{
 			Assert.False(PrimesCache.PrimalityCheckNoCache(N));
 		}
+
+		[TestCase(481UL)]
+		[TestCase(913UL)]
+		public void ExtendPrimesCacheTest(ulong upperTreshold)
+		{
+			PrimesCache.ClearAndRecalculateCache(200);
+			var underTreshold = primesArray.Where(s => s <= upperTreshold).ToArray();			
+			var indexOfLast = underTreshold.Length;
+			var expectatedRersult = primesArray.Take(indexOfLast + 1).ToArray();
+
+			PrimesCache.ExtendPrimesCacheBySearch(upperTreshold);
+			var result = PrimesCache.Primes();
+
+			Assert.That(result, Is.EqualTo(expectatedRersult));
+		}
 	}
 }
