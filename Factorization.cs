@@ -63,9 +63,10 @@ namespace PrimesAndFactorizationNet
 			return powersOfFactors;
 		}
 
-		public bool IsCoPrime(ulong a, ulong b)
+		public bool AreCoPrime(params ulong[] numbers)
 		{
-			return EulcidGreatestCommonDenominator(a, b);		
+			var commonFactors = GetCommonFactors(numbers).ToArray();
+			return commonFactors.Length == 1 && commonFactors[0] == 1;
 		}
 
 		public List<ulong> GetCoPrimes(ulong N, ulong upperLimit)
@@ -113,27 +114,7 @@ namespace PrimesAndFactorizationNet
 			}
 
 			return coPrimes;
-		}
-
-		private bool EulcidGreatestCommonDenominator(ulong a, ulong b)
-		{
-			ulong gcd;
-
-            while(a!= 0 && b!=0)
-            {
-                if(a > b)
-                {
-                    a = a % b;
-                }
-                else
-                {
-                    b = b % a;
-                }
-            }
-
-            gcd = a + b;
-            return gcd;
-		}
+		}		
 
 		public ulong ReconstructNumberByPrimePowers(Dictionary<ulong, int> powers)
 		{
@@ -199,6 +180,26 @@ namespace PrimesAndFactorizationNet
 			int segmentNumber = (int)(index / (ulong)segmentLength);
 			int indexInSegment = (int)(index - (ulong)segmentLength * (ulong)segmentNumber);
 			return new(segmentNumber, indexInSegment);
+		}
+
+		private bool EulcidGreatestCommonDenominator(ulong a, ulong b)
+		{
+			ulong gcd;
+
+            while(a!= 0 && b!=0)
+            {
+                if(a > b)
+                {
+                    a = a % b;
+                }
+                else
+                {
+                    b = b % a;
+                }
+            }
+
+            gcd = a + b;
+            return gcd;
 		}
 
 		private static Dictionary<ulong, int> GetCommonPrimesDictionary(params ulong[] numbers)
