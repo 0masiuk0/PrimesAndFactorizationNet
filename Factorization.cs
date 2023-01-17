@@ -117,7 +117,22 @@ namespace PrimesAndFactorizationNet
 
 		private bool EulcidGreatestCommonDenominator(ulong a, ulong b)
 		{
-			throw new NotImplementedException();
+			ulong gcd;
+
+            while(a!= 0 && b!=0)
+            {
+                if(a > b)
+                {
+                    a = a % b;
+                }
+                else
+                {
+                    b = b % a;
+                }
+            }
+
+            gcd = a + b;
+            return gcd;
 		}
 
 		public ulong ReconstructNumberByPrimePowers(Dictionary<ulong, int> powers)
@@ -130,9 +145,10 @@ namespace PrimesAndFactorizationNet
 			return result;
 		}
 
-		public IEnumerable<ulong> GetAllFactors(ulong number)
+		public IEnumerable<ulong> GetAllFactors(ulong number) => GetAllFactorsFromPrimePoweresDictionary(FactorizeAsPowersOfPrimes(number));		
+
+		private IEnumerable<ulong> GetAllFactorsFromPrimePoweresDictionary(Dictionary<ulong, int> powers)
 		{
-			Dictionary<ulong, int> powers = FactorizeAsPowersOfPrimes(number);
 			var possibleRanges = from primePower in powers
 								 select
 									from p in Enumerable.Range(0, primePower.Value)
@@ -148,10 +164,33 @@ namespace PrimesAndFactorizationNet
 				}
 				yield return result;
 			}
-
 		}
 
 		public IEnumerable<ulong> GetProperFactors(ulong number) => GetAllFactors(number).SkipLast(1);
+
+		public ulong GetGreatestCommonDenominator(params ulong[] numbers)
+		{
+			var len = numbers.Length;
+			if (len < 2)
+				throw new ArgumentException("Greatest common denominathor function needs at least two arguments");
+
+			if (len == 2)
+				return EulcidGreatestCommonDenominator(numbers[0], numbers[1]);
+
+			List<ulong> commonPrimeFactors = numbers[0];
+			for(int i = 1; i < len; i++)
+			{
+				commonPrimeFactors = FactorizationHelperTemp.Intersect(commonPrimeFactors, numbers[i]);				
+			}			
+			
+			return commonPrimeFactors.Aggregate(1, (product, factor) => product * factor);
+		}
+
+		public IEnumerable<ulong> GetCommonFactors(params ulong[] numbers)
+		{
+			var commonPrimesDictionary = GetCommonPrimesDictionary(numbers);
+			return GetAllFactorsFromPrimePoweresDictionary(commonPrimesDictionary);
+		}
 
 		#region helpers
 
@@ -160,6 +199,25 @@ namespace PrimesAndFactorizationNet
 			int segmentNumber = (int)(index / (ulong)segmentLength);
 			int indexInSegment = (int)(index - (ulong)segmentLength * (ulong)segmentNumber);
 			return new(segmentNumber, indexInSegment);
+		}
+
+		private static Dictionary<ulong, int> GetCommonPrimesDictionary(params ulong[] numbers)
+		{
+			var numbersAsPrimes = (from num in numbers select FactorizeAsPowersOfPrimes(num)).ToList();
+
+			Dictionary<ulong, int> result = numbersAsPrimes[0];
+			for(int i = 1; i < result.Count; i++)
+			{
+				foreach(var keyValuePair in numbersAsPrimes[i])
+				{
+					if (!result.ContainsKey(keyValuePair.Key))
+						result.RemoveKey(keyValuePair.Key);
+					else
+						result[keyValuePair.Key] = Math.Min(keyValuePair.Value, result[keyValuePair.Key])
+				}
+			}
+
+			return result;
 		}
 
 		private static IEnumerable Cartesian(IEnumerable<IEnumerable> items)

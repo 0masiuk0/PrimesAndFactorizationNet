@@ -1,4 +1,7 @@
-﻿namespace PrimesAndFactorizationNet
+﻿using System.Collections;
+using System.Collections.Generic;
+
+namespace PrimesAndFactorizationNet
 {
 	internal static class FactorizatorHelpers
 	{
@@ -47,6 +50,24 @@
 			ulong upperBound = (root + 1) * (root + 1);
 
 			return (n >= lowerBound && n < upperBound);
+		}
+	}
+
+	internal static class FactorizationHelperTemp
+	{
+		public static List<T> Intersect(IEnumerable<T> a, IEnumerable<T> b)
+		{
+			List<T> result = new();
+			List<T> bList = b.ToList();
+			foreach(T item in a)
+			{
+				if (bList.Contains(item))
+				{
+					result.Add(item);
+					bList.Remove(item);
+				}
+			}
+			return result;
 		}
 	}
 }
