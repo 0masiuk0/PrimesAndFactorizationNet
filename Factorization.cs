@@ -23,7 +23,7 @@ namespace PrimesAndFactorizationNet
 		public ulong[] GetPrimeFactors(ulong number)
 		{
 			List<ulong> factors = new();
-			ulong upperLimit = FactorizatorHelpers.ISqrt(number);
+			ulong upperLimit = IntegerExponentiation.ISqrt(number);
 
 			if (upperLimit > UpperLimitOfPrimeFactors)
 				throw new ArgumentException($"Cached range of integers (<{UpperLimitOfPrimeFactors}) " +
@@ -41,7 +41,7 @@ namespace PrimesAndFactorizationNet
 
 					factors.Add(prime);
 
-					currentLimit = FactorizatorHelpers.ISqrt(number) + 1;
+					currentLimit = IntegerExponentiation.ISqrt(number) + 1;
 				}
 			}
 			if (number != 1)
@@ -121,7 +121,7 @@ namespace PrimesAndFactorizationNet
 			ulong result = 1;
 			foreach (KeyValuePair<ulong, int> pair in powers)
 			{
-				result *= FactorizatorHelpers.IntPow(pair.Key, pair.Value);
+				result *= IntegerExponentiation.IntPow(pair.Key, pair.Value);
 			}
 			return result;
 		}
@@ -135,13 +135,13 @@ namespace PrimesAndFactorizationNet
 									from p in Enumerable.Range(0, primePower.Value)
 									select new { primePower.Value, p };
 
-			foreach(var combination in Cartesian(possibleRanges))
+			foreach(var combination in FactorizationHelper.Cartesian(possibleRanges))
 			{
 				IEnumerable<(ulong, int)> combo = combination as IEnumerable<(ulong, int)>;
 				ulong result = 1;
 				foreach(var pair in combo)
 				{
-					result *= FactorizatorHelpers.IntPow(pair.Item1, pair.Item2);
+					result *= IntegerExponentiation.IntPow(pair.Item1, pair.Item2);
 				}
 				yield return result;
 			}
@@ -158,13 +158,13 @@ namespace PrimesAndFactorizationNet
 			if (len == 2)
 				return EulcidGreatestCommonDenominator(numbers[0], numbers[1]);
 
-			List<ulong> commonPrimeFactors = numbers[0];
+			List<ulong> commonPrimeFactors = GetPrimeFactors(numbers[0]).ToList();
 			for(int i = 1; i < len; i++)
 			{
-				commonPrimeFactors = FactorizationHelperTemp.Intersect(commonPrimeFactors, numbers[i]);				
+				commonPrimeFactors = FactorizationHelper.Intersect(commonPrimeFactors, GetPrimeFactors(numbers[i]));				
 			}			
 			
-			return commonPrimeFactors.Aggregate(1, (product, factor) => product * factor);
+			return commonPrimeFactors.Aggregate(1UL, (product, factor) => product * factor);
 		}
 
 		public IEnumerable<ulong> GetCommonFactors(params ulong[] numbers)
@@ -182,7 +182,7 @@ namespace PrimesAndFactorizationNet
 			return new(segmentNumber, indexInSegment);
 		}
 
-		private bool EulcidGreatestCommonDenominator(ulong a, ulong b)
+		private ulong EulcidGreatestCommonDenominator(ulong a, ulong b)
 		{
 			ulong gcd;
 
@@ -202,7 +202,7 @@ namespace PrimesAndFactorizationNet
             return gcd;
 		}
 
-		private static Dictionary<ulong, int> GetCommonPrimesDictionary(params ulong[] numbers)
+		private Dictionary<ulong, int> GetCommonPrimesDictionary(params ulong[] numbers)
 		{
 			var numbersAsPrimes = (from num in numbers select FactorizeAsPowersOfPrimes(num)).ToList();
 
@@ -212,47 +212,16 @@ namespace PrimesAndFactorizationNet
 				foreach(var keyValuePair in numbersAsPrimes[i])
 				{
 					if (!result.ContainsKey(keyValuePair.Key))
-						result.RemoveKey(keyValuePair.Key);
+						result.Remove(keyValuePair.Key);
 					else
-						result[keyValuePair.Key] = Math.Min(keyValuePair.Value, result[keyValuePair.Key])
+						result[keyValuePair.Key] = Math.Min(keyValuePair.Value, result[keyValuePair.Key]);
 				}
 			}
 
 			return result;
 		}
 
-		private static IEnumerable Cartesian(IEnumerable<IEnumerable> items)
-		{
-			var slots = items
-			// initialize enumerators
-			.Select(x => x.GetEnumerator())
-			// get only those that could start in case there is an empty collection
-			.Where(x => x.MoveNext())
-			.ToArray();
-
-			while (true)
-			{
-				// yield current values
-				yield return slots.Select(x => x.Current);
-
-				// increase enumerators
-				foreach (var slot in slots)
-				{
-					// reset the slot if it couldn't move next
-					if (!slot.MoveNext())
-					{
-						// stop when the last enumerator resets
-						if (slot == slots.Last()) { yield break; }
-						slot.Reset();
-						slot.MoveNext();
-						// move to the next enumerator if this reseted
-						continue;
-					}
-					// we could increase the current enumerator without reset so stop here
-					break;
-				}
-			}
-		}
+		
 		#endregion
 	}
 }

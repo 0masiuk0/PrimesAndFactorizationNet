@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PrimesAndFactorizationNet
 {
-	internal static class FactorizatorHelpers
+	internal static class IntegerExponentiation
 	{
 
 		public static ulong IntPow(ulong x, int pow)
@@ -53,9 +53,9 @@ namespace PrimesAndFactorizationNet
 		}
 	}
 
-	internal static class FactorizationHelperTemp
+	internal static class FactorizationHelper
 	{
-		public static List<T> Intersect(IEnumerable<T> a, IEnumerable<T> b)
+		public static List<T> Intersect<T>(IEnumerable<T> a, IEnumerable<T> b)
 		{
 			List<T> result = new();
 			List<T> bList = b.ToList();
@@ -68,6 +68,39 @@ namespace PrimesAndFactorizationNet
 				}
 			}
 			return result;
+		}
+
+		public static IEnumerable Cartesian(IEnumerable<IEnumerable> items)
+		{
+			var slots = items
+			// initialize enumerators
+			.Select(x => x.GetEnumerator())
+			// get only those that could start in case there is an empty collection
+			.Where(x => x.MoveNext())
+			.ToArray();
+
+			while (true)
+			{
+				// yield current values
+				yield return slots.Select(x => x.Current);
+
+				// increase enumerators
+				foreach (var slot in slots)
+				{
+					// reset the slot if it couldn't move next
+					if (!slot.MoveNext())
+					{
+						// stop when the last enumerator resets
+						if (slot == slots.Last()) { yield break; }
+						slot.Reset();
+						slot.MoveNext();
+						// move to the next enumerator if this reseted
+						continue;
+					}
+					// we could increase the current enumerator without reset so stop here
+					break;
+				}
+			}
 		}
 	}
 }

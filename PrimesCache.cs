@@ -16,7 +16,6 @@ namespace PrimesAndFactorizationNet
 
 		static ConcurrentDictionary<ulong, ulong> _primes;		
 		static ulong _sievedRangeOfIntegers = 0;
-		static ulong _biggestPrimeCached = 2;
 		static object _cacheUpdateLock = new();
 
 		public static ulong CoveredRangeOfIntegers { get => _sievedRangeOfIntegers; }
@@ -59,7 +58,6 @@ namespace PrimesAndFactorizationNet
 					}
 					_primes[previous_prime] = UInt64.MaxValue;
 					_sievedRangeOfIntegers = upper_limit;
-					_biggestPrimeCached = previous_prime;
 				}
 			}
 		}
@@ -112,81 +110,13 @@ namespace PrimesAndFactorizationNet
 
 		}
 
-		public static void ExtendPrimesCacheBySearch(ulong stopSearchThreshold)
-		{
-			lock(_cacheUpdateLock)
-			{
-				do()
-				{
-					var nextPrime = FindNextPrimeNoLockNoRecord();
-					_primes[_biggestPrimeCached] = nextPrime;
-					_biggestPrimeCached = nextPrime;
-				}while(nextPrime <= stopSearchThreshold)
-
-				_primes[_biggestPrimeCached] = UInt64.MaxValue;
-			}
-		}
-
-		public static ulong FindNextPrimeBySearch()
-		{
-			lock(_cacheUpdateLock)
-			{
-				var nextPrime = FindNextPrimeNoLockNoRecord();
-				_primes[_biggestPrimeCached] = nextPrime;
-				_biggestPrimeCached = nextPrime;
-				primes[_biggestPrimeCached] = UInt64.MaxValue;
-			}
-		}
-
-		private static ulong FindNextPrimeNoLockNoRecord()
-		{
-			ulong candidate;
-			ulong increment;
-			bool foundOne = true;
-			if (_biggestPrimeCached % 6UL == 1)
-			{
-				candidate = _biggestPrimeCached + 4UL;
-				increment = 2;
-			}
-			else
-			{
-				candidate = _biggestPrimeCached + 2UL;
-				increment = 4;
-			}
-			var seed = _biggestPrimeCached / 6UL + ;
-
-			while(true)
-			{
-				var boundary = FactorizatorHelpers.ISqrt(number);
-				foreach(var prime in Primes())
-				{
-					if (prime >= boundary || candidate % prime == 0)
-					{
-						foundOne = false;
-						break;
-					}
-				}
-
-				if (foundOne)
-				{
-					return candidate;
-				}
-				else
-				{
-					foundOne = true;
-					candidate += increment;
-					increment = increment == 2 ? 4 : 2;
-				}
-			}
-		}
-
 		public static bool PrimalityCheckNoCache(ulong number)
 		{
 			if (number == 1) return false;
 			if (number == 2 || number == 3 || number == 5) return true;
 			if (number % 2UL == 0 || number % 3UL == 0 || number % 5UL == 0) return false;
 
-			var boundary = FactorizatorHelpers.ISqrt(number);
+			var boundary = IntegerExponentiation.ISqrt(number);
 
 			// You can do less work by observing that at this point, all primes 
 			// other than 2 and 3 leave a remainder of either 1 or 5 when divided by 6. 
