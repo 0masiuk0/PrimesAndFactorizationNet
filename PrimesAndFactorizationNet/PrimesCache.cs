@@ -14,13 +14,14 @@ namespace PrimesAndFactorizationNet
 		const ulong FIRST_PRIME = 2;
 		const ulong DFAULT_CACHE_UPPER_LIMIT = 1000;
 
-		static ConcurrentDictionary<ulong, ulong> _primes;		
+		static ConcurrentDictionary<ulong, ulong> _primes;
 		static ulong _sievedRangeOfIntegers = 0;
+		static ulong _biggestPrimeCached = 2;
 		static object _cacheUpdateLock = new();
 
 		public static ulong CoveredRangeOfIntegers { get => _sievedRangeOfIntegers; }
 
-		
+
 		static PrimesCache()
 		{
 			lock (_cacheUpdateLock)
@@ -58,6 +59,7 @@ namespace PrimesAndFactorizationNet
 					}
 					_primes[previous_prime] = UInt64.MaxValue;
 					_sievedRangeOfIntegers = upper_limit;
+					_biggestPrimeCached = previous_prime;
 				}
 			}
 		}
@@ -94,7 +96,7 @@ namespace PrimesAndFactorizationNet
 		}
 
 		public static IEnumerable<ulong> GetNPrimes(int N)
-		{		
+		{
 			if (N > _primes.Count)
 			{
 				throw new ArgumentException($"Cache contains less then N ({N}) primes at the moment.");
@@ -108,6 +110,75 @@ namespace PrimesAndFactorizationNet
 				}
 			}
 
+		}
+
+		public static void ExtendPrimesCacheBySearch(ulong stopSearchThreshold)
+		{
+			lock (_cacheUpdateLock)
+			{
+				ulong nextPrime;
+				do 
+				{
+					nextPrime = FindNextPrimeNoLockNoRecord();
+					_primes[_biggestPrimeCached] = nextPrime;
+					_biggestPrimeCached = nextPrime;
+				} while (nextPrime <= stopSearchThreshold);
+
+				_primes[_biggestPrimeCached] = UInt64.MaxValue;
+			}
+		}
+
+		public static ulong FindNextPrimeBySearch()
+		{
+			lock (_cacheUpdateLock)
+			{
+				var nextPrime = FindNextPrimeNoLockNoRecord();
+				_primes[_biggestPrimeCached] = nextPrime;
+				_biggestPrimeCached = nextPrime;
+				_primes[_biggestPrimeCached] = UInt64.MaxValue;
+				return nextPrime;
+			}
+		}
+
+		private static ulong FindNextPrimeNoLockNoRecord()
+		{
+			ulong candidate;
+			ulong increment;
+			bool foundOne = true;
+			if (_biggestPrimeCached % 6UL == 1)
+			{
+				candidate = _biggestPrimeCached + 4UL;
+				increment = 2;
+			}
+			else
+			{
+				candidate = _biggestPrimeCached + 2UL;
+				increment = 4;
+			}			
+
+			while (true)
+			{
+				var boundary = IntegerExponentiation.ISqrt(candidate);
+				foreach (var prime in Primes())
+				{
+					if (prime >= boundary || candidate % prime == 0)
+					{
+						foundOne = false;
+						break;
+					}
+				}
+
+				if (foundOne)
+				{
+					return candidate;
+				}
+				else
+				{
+					foundOne = true;
+					candidate += increment;
+					increment = increment == 2UL ? 4UL : 2UL;
+				}
+			}
 		}
 
 		public static bool PrimalityCheckNoCache(ulong number)
