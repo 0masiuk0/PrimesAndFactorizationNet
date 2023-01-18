@@ -8,33 +8,16 @@ namespace PrimesAndFactorizationTests
 	public class FactorizationTests
 	{
 		public static Factorizator _factorizator = new Factorizator(1_000_000);
+		static readonly Random _rnd = new Random();
 		
 		[Test]
 		[Repeat(10)]
 		public void FactorizationTest()
 		{
-			Random rnd = new Random();
-			int factorsCount = rnd.Next(25);
-			List<ulong> factors = new();
-			List<ulong> usedFactors = new();
-			for (int i = 0; i < factorsCount; i++)
-			{
-				factors.Add(PrimeCacheTest.primesArray[rnd.Next(15)]);
-			}			
-			ulong product = 1UL;
-			foreach(ulong factor in factors)
-			{
-				var newProduct = product * factor;
-				if (newProduct > _factorizator.UpperLimitOfPrimeFactors)
-					break;
-				product = newProduct;
-				usedFactors.Add(factor);
-			}
+			NumberAndPrimeFactors expectedResult = PrimeTestHelper.ComposeRandomNumber(_rnd.Next(1, 7), 10);
+			var result = _factorizator.GetPrimeFactors().ToList();
 
-			usedFactors.Sort();
-			var expectedResult = _factorizator.GetPrimeFactors((ulong)product).ToList();
-
-			Assert.AreEqual(expectedResult, usedFactors);
+			Assert.AreEqual(expectedResult.PrimeFactors, result);
 		}
 	}
 }
