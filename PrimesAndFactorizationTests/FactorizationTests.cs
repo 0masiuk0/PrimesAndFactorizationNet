@@ -45,10 +45,26 @@ namespace PrimesAndFactorizationTests
 			Assert.That(expectedResult, Is.EqualTo(result).AsCollection);
 		}
 
-		[Test]
-		public void GetAllFactorsTest()
+
+		static class GetAllfactorsTestSource:IEnumerable<(ulong, ulong[])>
 		{
-			
+			public static GetEnumerator<(ulong, ulong[])>()
+			{
+				yield return new {3, new int[] {1, 3}};
+				yield return new {28, new int[] {1, 2, 4, 7, 14, 28}};
+				yield return new {36, new int[] {1, 2, 3, 4, 36, 6, 9, 12, 18}};
+				yield return new {128, new int[] {32, 64, 2, 128, 4, 1, 8, 16}};
+				yield return new {129, new int[] {43, 129, 3, 1}};
+				yield return new {455, new int[] {65, 1, 35, 5, 7, 455, 13, 91}};
+			}
+		}
+
+
+		[TsestSource(typeof(GetAllfactorsTestSource))]
+		public void GetAllFactorsTest((ulong, ulong[]) testCase)
+		{
+			var result = _factorizator.GetAllFactors(testCase.Item1).ToArray();			
+			Assert.That(result, Is.EqualTo(testCase.Item2).AsCollection);
 		}
 	}
 }
