@@ -11,6 +11,8 @@ namespace PrimesAndFactorizationTests
 	[TestFixture]
 	internal partial class PrimeCacheTest
 	{
+		ulong[] primesArray => PrimeTestHelper.primesArray;
+
 		[SetUp]
 		public void SetUp()
 		{

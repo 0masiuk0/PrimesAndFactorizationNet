@@ -29,19 +29,18 @@ namespace PrimesAndFactorizationNet
 					$"may not be sufficient to factorize {number}");
 
 			ulong currentLimit = upperLimit;
-			foreach(var prime in PrimesCache.PrimesBelowLimit(upperLimit))
+			foreach(var prime in PrimesCache.Primes())
 			{
+				currentLimit = IntegerExponentiation.ISqrt(number);
+
 				if (prime > currentLimit)
 					break;
 
 				while (number % prime == 0)
 				{
-					number = number / prime;
-
 					yield return prime;
-
-					currentLimit = IntegerExponentiation.ISqrt(number) + 1;
-				}
+					number = number / prime;
+				}				
 			}
 			if (number != 1)
 				yield return number;
@@ -52,7 +51,7 @@ namespace PrimesAndFactorizationNet
 			Dictionary<ulong, int> powersOfFactors = new Dictionary<ulong, int>();			
 			foreach(ulong primeFactor in GetPrimeFactors(number))
 			{
-				if (powersOfFactors.ContainsKey(primeFactor))
+				if (!powersOfFactors.ContainsKey(primeFactor))
 					powersOfFactors[primeFactor] = 1;
 				else
 					powersOfFactors[primeFactor]++;
@@ -64,18 +63,16 @@ namespace PrimesAndFactorizationNet
 
 		private IEnumerable<ulong> GetAllFactorsFromPrimePoweresDictionary(Dictionary<ulong, int> powers)
 		{
-			var possibleRanges = from primePower in powers
-								 select
-									from p in Enumerable.Range(0, primePower.Value)
-									select new { primePower.Value, p };
+			var possibleRanges = from factorKeyPowerValuePair in powers	 select
+									from possiblePow in Enumerable.Range(0, factorKeyPowerValuePair.Value + 1)
+									select new {factor=factorKeyPowerValuePair.Key, possiblePow};
 
 			foreach(var combination in FactorizationHelper.Cartesian(possibleRanges))
-			{
-				IEnumerable<(ulong, int)> combo = combination as IEnumerable<(ulong, int)>;
+			{				
 				ulong result = 1;
-				foreach(var pair in combo)
+				foreach(var pair in combination)
 				{
-					result *= IntegerExponentiation.IntPow(pair.Item1, pair.Item2);
+					result *= IntegerExponentiation.IntPow(pair.factor, pair.possiblePow);
 				}
 				yield return result;
 			}

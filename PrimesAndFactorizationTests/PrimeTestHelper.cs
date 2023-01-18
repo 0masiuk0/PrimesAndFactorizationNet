@@ -6,28 +6,28 @@ namespace PrimesAndFactorizationTests
 {	
     internal static class PrimeTestHelper
     {
-        Random _rnd = new()
+        static Random _rnd = new();
 
         public static ulong GetRandomPrime(ulong upperInclusiveLimit)
         {
-            var primesBelowLimit = primesArray.Where(s => s <= upperInclusiveLimit).ToArray()
-            return primesArray[_rnd(primesBelowLimit.Length)];
+            var primesBelowLimit = primesArray.Where(s => s <= upperInclusiveLimit).ToArray();
+            return primesArray[_rnd.Next(primesBelowLimit.Length)];
         }
 
-        public static Enumerable<ulong> GetNRandomPrimes(int N, ulong upperInclusiveLimit)
+        public static IEnumerable<ulong> GetNRandomPrimes(int N, ulong upperInclusiveLimit)
         {
-            var primesBelowLimit = primesArray.Where(s => s <= upperInclusiveLimit).ToArray()
+            var primesBelowLimit = primesArray.Where(s => s <= upperInclusiveLimit).ToArray();
             for(int i = 0; i < N; i++)
             {
-                    yield return primesArray[_rnd(primesBelowLimit.Length)];
+                    yield return primesArray[_rnd.Next(primesBelowLimit.Length)];
             }
         }
 
-        public ulong LimitedProduct(IEnumerable<ulong> factors, ulong upperInclusiveLimit = UInt64.MaxValue, out List<ulong> usedFactors)
+        public static ulong LimitedProduct(IEnumerable<ulong> factors, out List<ulong> usedFactors, ulong upperInclusiveLimit = UInt64.MaxValue)
         {
             checked
-            {                
-                usedFactors = new()
+            {
+                usedFactors = new();
                 ulong p = 1;
                 foreach(var factor in factors)
                 {                    
@@ -44,28 +44,29 @@ namespace PrimesAndFactorizationTests
                     }
                     catch(ArithmeticException)
                     {
-                        return p;
+                        break;
                     }
                 }
-            }
+				return p;
+			}            
         }
 
-        public NumberAndPrimeFactors ComposeRandomNumber(int attemptedNumberOfPrimeFactors, int primeFactorsPoolSize)
+        public static NumberAndPrimeFactors ComposeRandomNumber(int attemptedNumberOfPrimeFactors, int primeFactorsPoolSize)
         {
             var topPrimeFromPool = primesArray[primeFactorsPoolSize];
-            List<ulong> factors = new()
+            List<ulong> factors = new();
             for(int i=0; i<attemptedNumberOfPrimeFactors; i++)
             {
                 factors.Add(GetRandomPrime(topPrimeFromPool));
             }
             
-            return NumberAndPrimeFactors(factors);
+            return new NumberAndPrimeFactors(factors);
         }
 
         public static (ulong[], ulong[]) GetNonIntersectingSetsOfPrimes(int count1, int count2)
         {
             if (count1 + count2 >= primesArray.Length)
-                throw new ArgumentExcption('Too small primes library for this request.');
+                throw new ArgumentException("Too small primes library for this request.");
 
             HashSet<ulong> a = new();
             while(a.Count < count1)
@@ -80,7 +81,7 @@ namespace PrimesAndFactorizationTests
                     b.Add(prime);
             }
 
-            return new {a.ToArray(), b.ToArray()};
+            return (a.ToArray(), b.ToArray());
         }
 
         // 168 primes below 1000
@@ -97,7 +98,7 @@ namespace PrimesAndFactorizationTests
 			853, 857, 859, 863, 877, 881, 883, 887, 907, 911, 919, 929, 937, 941, 947,
 			953, 967, 971, 977, 983, 991, 997 }; 
 
-        ulong _largestPrime => primesArray.Last();
+       static ulong _largestPrime => primesArray.Last();
     }
 
     public struct NumberAndPrimeFactors
@@ -105,17 +106,17 @@ namespace PrimesAndFactorizationTests
         public readonly ulong Number;
         public readonly ulong[] PrimeFactors;
 
-        public NumberAndPrimeFactors(IEnumerable<ulong> primeFactors)
+        public NumberAndPrimeFactors(IEnumerable<ulong> primeFactors, ulong upperInclusiveLimit = UInt64.MaxValue)
         {
             List<ulong> usedFactors;
-            Number = PrimeTestHelper.LimitedProduct(primeFactors, out usedFactors);
-            PrimeFactors = primeFactors.ToList().Sort().ToArray();
-        }
+            Number = PrimeTestHelper.LimitedProduct(primeFactors, out usedFactors, upperInclusiveLimit);
+            PrimeFactors = usedFactors.ToList().OrderBy(s => s).ToArray();
+		}
 
         public NumberAndPrimeFactors(ulong number, IEnumerable<ulong> primeFactors)
         {
             Number = number;
-            PrimeFactors = primeFactors.ToList().Sort().ToArray();
+            PrimeFactors = primeFactors.ToList().OrderBy(s => s).ToArray();
         }
     }
 }

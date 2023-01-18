@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PrimesAndFactorizationNet
 {
-	internal static class IntegerExponentiation
+	public static class IntegerExponentiation
 	{
 
 		public static ulong IntPow(ulong x, int pow)
@@ -70,7 +70,7 @@ namespace PrimesAndFactorizationNet
 			return result;
 		}
 
-		public static IEnumerable Cartesian(IEnumerable<IEnumerable> items)
+		public static IEnumerable<IEnumerable<T>> Cartesian<T>(IEnumerable<IEnumerable<T>> items)
 		{
 			var slots = items
 			// initialize enumerators

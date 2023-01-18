@@ -1,6 +1,9 @@
 using PrimesAndFactorizationNet;
 using Combinatorics;
 using NUnit.Framework.Constraints;
+using System.Collections;
+using System.Globalization;
+using System.Linq;
 
 namespace PrimesAndFactorizationTests
 {
@@ -17,13 +20,13 @@ namespace PrimesAndFactorizationTests
 		}
 		
 		[Test]
-		[Repeat(10)]
+		[Repeat(1000)]
 		public void FactorizationTest()
 		{
-			NumberAndPrimeFactors expectedResult = PrimeTestHelper.ComposeRandomNumber(_rnd.Next(1, 7), 10);
-			var result = _factorizator.GetPrimeFactors().ToList();
+			NumberAndPrimeFactors expectedResult = PrimeTestHelper.ComposeRandomNumber(_rnd.Next(1, 10), 10);
+			var result = _factorizator.GetPrimeFactors(expectedResult.Number).ToList();
 
-			Assert.AreEqual(expectedResult.PrimeFactors, result);
+			Assert.That(expectedResult.PrimeFactors, Is.EqualTo(result));
 		}
 
 		[Test]
@@ -31,36 +34,53 @@ namespace PrimesAndFactorizationTests
 		public void FatorizationToPowerOfPrimesTest()
 		{
 			Dictionary<ulong,int> expectedResult = new();
-			int numberOfFactors = _rnd(1, 6);
-			ulong testNumber = 1;
+			int numberOfFactors = _rnd.Next(1, 6);			
+			List<ulong> factors = new();
 			for(int i= 0; i < numberOfFactors; i++)
 			{
 				ulong prime = PrimeTestHelper.GetRandomPrime(150);
-				int power = _rnd.Next(1,4);
-				expectedResult[prime] = power;
-				testNumber *= PrimesAndFactorizationNet.IntegerExponentiation(prime, power);
+				int power = _rnd.Next(1,4);				
+				for(int j = 0; j < power; j++)
+					factors.Add(prime);
 			}
-			Dictionary<ulong,int> result = _factorizator.FactorizeAsPowersOfPrimes(testNumber);
+			NumberAndPrimeFactors testNumber = new NumberAndPrimeFactors(factors, 
+				_factorizator.UpperLimitOfPrimeFactors * _factorizator.UpperLimitOfPrimeFactors);
+
+			factors = testNumber.PrimeFactors.ToList();
+			expectedResult = factors.Distinct()
+				.Select(x => (x, factors.Count(y => y==x)))
+				.ToDictionary(z => z.Item1, u => u.Item2);
+
+			Dictionary<ulong,int> result = _factorizator.FactorizeAsPowersOfPrimes(testNumber.Number);
 
 			Assert.That(expectedResult, Is.EqualTo(result).AsCollection);
 		}
 
-
-		static class GetAllfactorsTestSource:IEnumerable<(ulong, ulong[])>
+		private class GetAllfactorsTestSource : IEnumerable<(ulong, ulong[])>
 		{
-			public static GetEnumerator<(ulong, ulong[])>()
+			public IEnumerator<(ulong, ulong[])> GetEnumerator()
 			{
-				yield return new {3, new int[] {1, 3}};
-				yield return new {28, new int[] {1, 2, 4, 7, 14, 28}};
-				yield return new {36, new int[] {1, 2, 3, 4, 36, 6, 9, 12, 18}};
-				yield return new {128, new int[] {32, 64, 2, 128, 4, 1, 8, 16}};
-				yield return new {129, new int[] {43, 129, 3, 1}};
-				yield return new {455, new int[] {65, 1, 35, 5, 7, 455, 13, 91}};
+				yield return (3, new ulong[] { 1, 3 });
+				yield return (28, new ulong[] { 1, 2, 4, 7, 14, 28 });
+				yield return (36, new ulong[] { 1, 2, 3, 4, 36, 6, 9, 12, 18 });
+				yield return (128, new ulong[] { 32, 64, 2, 128, 4, 1, 8, 16 });
+				yield return (129, new ulong[] { 43, 129, 3, 1 });
+				yield return (455, new ulong[] { 65, 1, 35, 5, 7, 455, 13, 91 });
+			}
+
+			// Must also implement IEnumerable.GetEnumerator, but implement as a private method.
+			private IEnumerator GetEnumerator1()
+			{
+				return this.GetEnumerator();
+			}
+			IEnumerator IEnumerable.GetEnumerator()
+			{
+				return GetEnumerator1();
 			}
 		}
 
 
-		[TsestSource(typeof(GetAllfactorsTestSource))]
+		[TestCaseSource(typeof(GetAllfactorsTestSource))]
 		public void GetAllFactorsTest((ulong, ulong[]) testCase)
 		{
 			var result = _factorizator.GetAllFactors(testCase.Item1).ToArray();			
