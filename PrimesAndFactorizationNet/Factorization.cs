@@ -60,6 +60,33 @@ namespace PrimesAndFactorizationNet
 			return powersOfFactors;
 		}
 
+		public IEnumerable<ulong> GetAllFactors(ulong number) => GetAllFactorsFromPrimePoweresDictionary(FactorizeAsPowersOfPrimes(number));		
+
+		private IEnumerable<ulong> GetAllFactorsFromPrimePoweresDictionary(Dictionary<ulong, int> powers)
+		{
+			var possibleRanges = from primePower in powers
+								 select
+									from p in Enumerable.Range(0, primePower.Value)
+									select new { primePower.Value, p };
+
+			foreach(var combination in FactorizationHelper.Cartesian(possibleRanges))
+			{
+				IEnumerable<(ulong, int)> combo = combination as IEnumerable<(ulong, int)>;
+				ulong result = 1;
+				foreach(var pair in combo)
+				{
+					result *= IntegerExponentiation.IntPow(pair.Item1, pair.Item2);
+				}
+				yield return result;
+			}
+		}
+
+		public IEnumerable<ulong> GetCommonFactors(params ulong[] numbers)
+		{
+			var commonPrimesDictionary = GetCommonPrimesDictionary(numbers);
+			return GetAllFactorsFromPrimePoweresDictionary(commonPrimesDictionary);
+		}
+
 		public bool AreCoPrime(params ulong[] numbers)
 		{
 			var commonFactors = GetCommonFactors(numbers).ToArray();
@@ -121,28 +148,7 @@ namespace PrimesAndFactorizationNet
 				result *= IntegerExponentiation.IntPow(pair.Key, pair.Value);
 			}
 			return result;
-		}
-
-		public IEnumerable<ulong> GetAllFactors(ulong number) => GetAllFactorsFromPrimePoweresDictionary(FactorizeAsPowersOfPrimes(number));		
-
-		private IEnumerable<ulong> GetAllFactorsFromPrimePoweresDictionary(Dictionary<ulong, int> powers)
-		{
-			var possibleRanges = from primePower in powers
-								 select
-									from p in Enumerable.Range(0, primePower.Value)
-									select new { primePower.Value, p };
-
-			foreach(var combination in FactorizationHelper.Cartesian(possibleRanges))
-			{
-				IEnumerable<(ulong, int)> combo = combination as IEnumerable<(ulong, int)>;
-				ulong result = 1;
-				foreach(var pair in combo)
-				{
-					result *= IntegerExponentiation.IntPow(pair.Item1, pair.Item2);
-				}
-				yield return result;
-			}
-		}
+		}		
 
 		public IEnumerable<ulong> GetProperFactors(ulong number) => GetAllFactors(number).SkipLast(1);
 
@@ -163,13 +169,7 @@ namespace PrimesAndFactorizationNet
 			
 			return commonPrimeFactors.Aggregate(1UL, (product, factor) => product * factor);
 		}
-
-		public IEnumerable<ulong> GetCommonFactors(params ulong[] numbers)
-		{
-			var commonPrimesDictionary = GetCommonPrimesDictionary(numbers);
-			return GetAllFactorsFromPrimePoweresDictionary(commonPrimesDictionary);
-		}
-
+		
 		#region helpers
 
 		private static (int, int) CalculateSegmentIndex(ulong index, int segmentLength)
