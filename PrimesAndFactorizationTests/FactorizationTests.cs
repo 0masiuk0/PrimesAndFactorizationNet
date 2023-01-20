@@ -67,7 +67,7 @@ namespace PrimesAndFactorizationTests
 				yield return (129, new ulong[] { 43, 129, 3, 1 });
 				yield return (455, new ulong[] { 65, 1, 35, 5, 7, 455, 13, 91 });
 			}
-
+			#region ienumerator_boring_stuff
 			// Must also implement IEnumerable.GetEnumerator, but implement as a private method.
 			private IEnumerator GetEnumerator1()
 			{
@@ -77,6 +77,7 @@ namespace PrimesAndFactorizationTests
 			{
 				return GetEnumerator1();
 			}
+			#endregion
 		}
 
 
@@ -84,7 +85,7 @@ namespace PrimesAndFactorizationTests
 		public void GetAllFactorsTest((ulong, ulong[]) testCase)
 		{
 			var result = _factorizator.GetAllFactors(testCase.Item1).ToArray();			
-			Assert.That(result, Is.EqualTo(testCase.Item2).AsCollection);
+			CollectionAssert.AreEquivalent(result, testCase.Item2);
 		}
 	}
 }

@@ -147,7 +147,7 @@ namespace PrimesAndFactorizationNet
 		{
 			ulong candidate;
 			ulong increment;
-			bool foundOne = true;
+			
 			if (_biggestPrimeCached % 6UL == 1)
 			{
 				candidate = _biggestPrimeCached + 4UL;
@@ -169,12 +169,10 @@ namespace PrimesAndFactorizationNet
 
 					if (candidate % prime == 0)
 					{
-						foundOne = false;
 						break;
 					}
 				}
 
-				foundOne = true;
 				candidate += increment;
 				increment = increment == 2UL ? 4UL : 2UL;
 				
