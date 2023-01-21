@@ -51,7 +51,7 @@ namespace PrimesAndFactorizationTests
 			}            
         }
 
-        public static NumberAndPrimeFactors ComposeRandomNumber(int attemptedNumberOfPrimeFactors, int primeFactorsPoolSize)
+        public static NumberAndPrimeFactors ComposeRandomNumber(int attemptedNumberOfPrimeFactors, int primeFactorsPoolSize, ulong upperInclusiveLimitResult = UInt64.MaxValue)
         {
             var topPrimeFromPool = primesArray[primeFactorsPoolSize];
             List<ulong> factors = new();
@@ -60,7 +60,7 @@ namespace PrimesAndFactorizationTests
                 factors.Add(GetRandomPrime(topPrimeFromPool));
             }
             
-            return new NumberAndPrimeFactors(factors);
+            return new NumberAndPrimeFactors(factors, upperInclusiveLimitResult);
         }
 
         public static (ulong[], ulong[]) GetNonIntersectingSetsOfPrimes(int count1, int count2)

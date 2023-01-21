@@ -10,14 +10,16 @@ namespace PrimesAndFactorizationTests
 	[TestFixture]
 	public class FactorizationTests
 	{
-		public static Factorizator _factorizator = new Factorizator(1_000_000);
+		const ulong PRIME_FACTOR_LIMIT = 1_000_000UL;
+		const ulong COMPOSITE_NUMBER_LIMIT = 1_000_000_000UL;
+		public static Factorizator _factorizator = new Factorizator(PRIME_FACTOR_LIMIT);
 		static readonly Random _rnd = new Random();
 			
 		[Test]
 		[Repeat(1000)]
 		public void FactorizationTest()
 		{
-			NumberAndPrimeFactors expectedResult = PrimeTestHelper.ComposeRandomNumber(_rnd.Next(1, 10), 10);
+			NumberAndPrimeFactors expectedResult = PrimeTestHelper.ComposeRandomNumber(_rnd.Next(1, 10), 10, COMPOSITE_NUMBER_LIMIT);
 			var result = _factorizator.GetPrimeFactors(expectedResult.Number).ToList();
 
 			Assert.That(expectedResult.PrimeFactors, Is.EqualTo(result));
@@ -94,10 +96,45 @@ namespace PrimesAndFactorizationTests
 		[Repeat(10)]
 		public void GetComonFactorsTest()
 		{
-			NumberAndPrimeFactors mockNumber1 = PrimeTestHelper.ComposeRandomNumber(5,8);
-			NumberAndPrimeFactors mockNumber2 = PrimeTestHelper.ComposeRandomNumber(5,8);
+			NumberAndPrimeFactors mockNumber1 = PrimeTestHelper.ComposeRandomNumber(7,10,COMPOSITE_NUMBER_LIMIT);
+			NumberAndPrimeFactors mockNumber2 = PrimeTestHelper.ComposeRandomNumber(7,10,COMPOSITE_NUMBER_LIMIT);
 			List<ulong> commonFactors = new();
+			var n1factorsList = mockNumber1.PrimeFactors.ToList();
+			var n2FactorsList = mockNumber2.PrimeFactors.ToList();
+			foreach(var factor in n1factorsList)
+			{
+				if (n2FactorsList.Contains(factor))
+				{
+					commonFactors.Add(factor);
+					n2FactorsList.Remove(factor);
+				}
+			}
 
+			var result = _factorizator.GetCommonFactors(mockNumber1.Number, mockNumber2.Number);
+
+			CollectionAssert.AreEquivalent(result, commonFactors);
+		}
+
+		[Test]
+		[Repeat(10)]
+		public void AreCoPrimePositiveTest()
+		{
+			var primeFactors1 = PrimeTestHelper.GetNRandomPrimes(5, 25).ToHashSet();
+			var prineFactors2 = new HashSet<ulong>();
+
+			while(prineFactors2.Count < 5)
+			{
+				var candidate = PrimeTestHelper.GetRandomPrime(25);
+				if (!primeFactors1.Contains(candidate))
+					prineFactors2.Add(candidate);
+			}
+
+			NumberAndPrimeFactors n1 = new(primeFactors1);
+			NumberAndPrimeFactors n2 = new(prineFactors2);
+
+			bool result = _factorizator.AreCoPrime(n1.Number, n2.Number);
+			
+			Assert.True(result);
 		}
 	}
 }

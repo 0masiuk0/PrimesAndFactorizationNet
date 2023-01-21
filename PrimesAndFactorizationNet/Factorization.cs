@@ -201,7 +201,7 @@ namespace PrimesAndFactorizationNet
 			var numbersAsPrimes = (from num in numbers select FactorizeAsPowersOfPrimes(num)).ToList();
 
 			Dictionary<ulong, int> result = numbersAsPrimes[0];
-			for(int i = 1; i < result.Count; i++)
+			for(int i = 1; i < numbersAsPrimes.Count; i++)
 			{
 				foreach(var keyValuePair in numbersAsPrimes[i])
 				{
