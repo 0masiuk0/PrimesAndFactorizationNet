@@ -10,15 +10,9 @@ namespace PrimesAndFactorizationTests
 	[TestFixture]
 	public class FactorizationTests
 	{
-		public static Factorizator _factorizator;
+		public static Factorizator _factorizator = new Factorizator(1_000_000);
 		static readonly Random _rnd = new Random();
-		
-		[SetUp]
-		public void Setup()
-		{
-			_factorizator = new Factorizator(1_000_000);
-		}
-		
+			
 		[Test]
 		[Repeat(1000)]
 		public void FactorizationTest()
@@ -56,7 +50,7 @@ namespace PrimesAndFactorizationTests
 			Assert.That(expectedResult, Is.EqualTo(result).AsCollection);
 		}
 
-		private class GetAllfactorsTestSource : IEnumerable<(ulong, ulong[])>
+		private class GetFactorsTestSource : IEnumerable<(ulong, ulong[])>
 		{
 			public IEnumerator<(ulong, ulong[])> GetEnumerator()
 			{
@@ -81,11 +75,29 @@ namespace PrimesAndFactorizationTests
 		}
 
 
-		[TestCaseSource(typeof(GetAllfactorsTestSource))]
+		[TestCaseSource(typeof(GetFactorsTestSource))]
 		public void GetAllFactorsTest((ulong, ulong[]) testCase)
 		{
-			var result = _factorizator.GetAllFactors(testCase.Item1).ToArray();			
+			var result = _factorizator.GetAllFactors(testCase.Item1);			
 			CollectionAssert.AreEquivalent(result, testCase.Item2);
+		}
+
+		[TestCaseSource(typeof(GetFactorsTestSource))]
+		public void GetProperFactorsTest((ulong, ulong[]) testCase)
+		{
+			var result = _factorizator.GetProperFactors(testCase.Item1);			
+			var expectedResult = testCase.Item2.Where(s => s != testCase.Item1);
+			CollectionAssert.AreEquivalent(result, expectedResult);
+		}
+
+		[Test]
+		[Repeat(10)]
+		public void GetComonFactorsTest()
+		{
+			NumberAndPrimeFactors mockNumber1 = PrimeTestHelper.ComposeRandomNumber(5,8);
+			NumberAndPrimeFactors mockNumber2 = PrimeTestHelper.ComposeRandomNumber(5,8);
+			List<ulong> commonFactors = new();
+
 		}
 	}
 }
