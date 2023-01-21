@@ -74,7 +74,7 @@ namespace PrimesAndFactorizationNet
 		{
 			var slots = items
 			// initialize enumerators
-			.Select(x => x.GetEnumerator())
+			.Select(x => x.GetResetableEnumerator())
 			// get only those that could start in case there is an empty collection
 			.Where(x => x.MoveNext())
 			.ToArray();
@@ -103,4 +103,40 @@ namespace PrimesAndFactorizationNet
 			}
 		}
 	}
+
+	static class ResetabeIEnumerableExtentionMethod
+		{
+			public static ResetableEnumerator<T> GetResetableEnumerator<T>(this IEnumerable<T> collection)
+			{
+				return new ResetableEnumerator<T>(collection);
+			}
+			
+			public class ResetableEnumerator<U> : IEnumerator<U>
+			{
+				readonly IEnumerable<U> _collection;
+				IEnumerator<U> _originalEnumerator;
+				public ResetableEnumerator(IEnumerable<U> collection)
+				{
+					_collection = collection;
+					_originalEnumerator = _collection.GetEnumerator();
+				}
+
+				public U Current => _originalEnumerator.Current;
+				object IEnumerator.Current => _originalEnumerator.Current;
+				public bool MoveNext() => _originalEnumerator.MoveNext();
+				public void Reset() 
+				{
+					_originalEnumerator = _collection.GetEnumerator();
+				}
+				
+				public bool ResetAndMoveNext()
+				{
+					Reset();
+					return MoveNext();
+				}
+
+				public void Dispose()
+				{}
+			}
+		}
 }

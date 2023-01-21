@@ -118,5 +118,5 @@ namespace PrimesAndFactorizationTests
             Number = number;
             PrimeFactors = primeFactors.ToList().OrderBy(s => s).ToArray();
         }
-    }
+    }    
 }
