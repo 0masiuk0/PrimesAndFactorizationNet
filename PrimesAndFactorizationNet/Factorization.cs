@@ -198,19 +198,16 @@ namespace PrimesAndFactorizationNet
 
 		private Dictionary<ulong, int> GetCommonPrimesDictionary(params ulong[] numbers)
 		{
-			var numbersAsPrimes = (from num in numbers select FactorizeAsPowersOfPrimes(num)).ToList();
+			var numbersAsPrimesDict = (from num in numbers select FactorizeAsPowersOfPrimes(num)).ToList();
 
-			Dictionary<ulong, int> result = numbersAsPrimes[0];
-			for(int i = 1; i < numbersAsPrimes.Count; i++)
+			Dictionary<ulong, int> result = new();			
+			foreach(var primePowerPair in numbersAsPrimesDict[0])
 			{
-				foreach(var keyValuePair in numbersAsPrimes[i])
+				if (Enumerable.All(numbersAsPrimesDict, dict => dict.ContainsKey(primePowerPair.Key)))
 				{
-					if (!result.ContainsKey(keyValuePair.Key))
-						result.Remove(keyValuePair.Key);
-					else
-						result[keyValuePair.Key] = Math.Min(keyValuePair.Value, result[keyValuePair.Key]);
+					result[primePowerPair.Key] = Enumerable.Min(numbersAsPrimesDict.Select(x => x[primePowerPair.Key]));
 				}
-			}
+			}			
 
 			return result;
 		}

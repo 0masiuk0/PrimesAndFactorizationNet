@@ -98,17 +98,10 @@ namespace PrimesAndFactorizationTests
 		{
 			NumberAndPrimeFactors mockNumber1 = PrimeTestHelper.ComposeRandomNumber(7,10,COMPOSITE_NUMBER_LIMIT);
 			NumberAndPrimeFactors mockNumber2 = PrimeTestHelper.ComposeRandomNumber(7,10,COMPOSITE_NUMBER_LIMIT);
-			List<ulong> commonFactors = new();
-			var n1factorsList = mockNumber1.PrimeFactors.ToList();
-			var n2FactorsList = mockNumber2.PrimeFactors.ToList();
-			foreach(var factor in n1factorsList)
-			{
-				if (n2FactorsList.Contains(factor))
-				{
-					commonFactors.Add(factor);
-					n2FactorsList.Remove(factor);
-				}
-			}
+			
+			var n1factorsSet = _factorizator.GetAllFactors(mockNumber1.Number).ToHashSet();
+			var n2FactorsSet = _factorizator.GetAllFactors(mockNumber2.Number).ToHashSet();
+			var commonFactors = n1factorsSet.Intersect(n2FactorsSet);
 
 			var result = _factorizator.GetCommonFactors(mockNumber1.Number, mockNumber2.Number);
 
