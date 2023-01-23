@@ -23,7 +23,23 @@ namespace PrimesAndFactorizationTests
             }
         }
 
-        public static ulong LimitedProduct(IEnumerable<ulong> factors, out List<ulong> usedFactors, ulong upperInclusiveLimit = UInt64.MaxValue)
+        public static IEnumerable<ulong> GetNDifferentRandomPrimes(int N, ulong upperInclusiveLimit)
+		{
+			var primesBelowLimit = primesArray.Where(s => s <= upperInclusiveLimit).ToArray();
+            if (N > primesBelowLimit.Length)
+                throw new ArgumentException("Not enough primes in given range.");
+
+            List<int> indexes = Enumerable.Range(0, N).ToList();
+            while(indexes.Count > 0)
+            {
+                var item = indexes[_rnd.Next(indexes.Count)];
+                indexes.Remove(item);
+				yield return primesBelowLimit[item];
+            }
+
+		}
+
+		public static ulong LimitedProduct(IEnumerable<ulong> factors, out List<ulong> usedFactors, ulong upperInclusiveLimit = UInt64.MaxValue)
         {
             checked
             {
@@ -119,4 +135,22 @@ namespace PrimesAndFactorizationTests
             PrimeFactors = primeFactors.ToList().OrderBy(s => s).ToArray();
         }
     }    
+
+    internal static class Shuffler
+    {
+		private static Random rng = new Random();
+
+		public static void Shuffle<T>(this IList<T> list)
+		{
+			int n = list.Count;
+			while (n > 1)
+			{
+				n--;
+				int k = rng.Next(n + 1);
+				T value = list[k];
+				list[k] = list[n];
+				list[n] = value;
+			}
+		}
+	}
 }

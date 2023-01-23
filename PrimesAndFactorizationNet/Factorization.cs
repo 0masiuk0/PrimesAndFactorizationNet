@@ -63,6 +63,12 @@ namespace PrimesAndFactorizationNet
 
 		private IEnumerable<ulong> GetAllFactorsFromPrimePoweresDictionary(Dictionary<ulong, int> powers)
 		{
+			if (powers.Count == 0)
+			{
+				yield return 1;
+				yield break;
+			}
+
 			var possibleRanges = from factorKeyPowerValuePair in powers	 select
 									from possiblePow in Enumerable.Range(0, factorKeyPowerValuePair.Value + 1)
 									select new {factor=factorKeyPowerValuePair.Key, possiblePow};
@@ -81,7 +87,8 @@ namespace PrimesAndFactorizationNet
 		public IEnumerable<ulong> GetCommonFactors(params ulong[] numbers)
 		{
 			var commonPrimesDictionary = GetCommonPrimesDictionary(numbers);
-			return GetAllFactorsFromPrimePoweresDictionary(commonPrimesDictionary);
+			var result = GetAllFactorsFromPrimePoweresDictionary(commonPrimesDictionary);
+			return result;
 		}
 
 		public bool AreCoPrime(params ulong[] numbers)

@@ -112,22 +112,16 @@ namespace PrimesAndFactorizationTests
 		[Repeat(10)]
 		public void AreCoPrimePositiveTest()
 		{
-			var primeFactors1 = PrimeTestHelper.GetNRandomPrimes(5, 25).ToHashSet();
-			var prineFactors2 = new HashSet<ulong>();
+			var primeFactors = PrimeTestHelper.GetNDifferentRandomPrimes(10, 50).ToList();
+			primeFactors.Shuffle();
+			
 
-			while(prineFactors2.Count < 5)
-			{
-				var candidate = PrimeTestHelper.GetRandomPrime(25);
-				if (!primeFactors1.Contains(candidate))
-					prineFactors2.Add(candidate);
-			}
-
-			NumberAndPrimeFactors n1 = new(primeFactors1);
-			NumberAndPrimeFactors n2 = new(prineFactors2);
+			NumberAndPrimeFactors n1 = new(primeFactors.Take(5), PRIME_FACTOR_LIMIT);
+			NumberAndPrimeFactors n2 = new(primeFactors.TakeLast(5), PRIME_FACTOR_LIMIT);
 
 			bool result = _factorizator.AreCoPrime(n1.Number, n2.Number);
 			
-			Assert.True(result);
+			Assert.That(result, Is.True);
 		}
 	}
 }

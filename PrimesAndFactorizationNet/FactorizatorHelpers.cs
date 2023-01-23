@@ -79,6 +79,9 @@ namespace PrimesAndFactorizationNet
 			.Where(x => x.MoveNext())
 			.ToArray();
 
+			if (slots.Length == 0)
+				yield break;
+
 			while (true)
 			{
 				// yield current values
