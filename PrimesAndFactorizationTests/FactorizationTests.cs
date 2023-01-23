@@ -76,7 +76,6 @@ namespace PrimesAndFactorizationTests
 			#endregion
 		}
 
-
 		[TestCaseSource(typeof(GetFactorsTestSource))]
 		public void GetAllFactorsTest((ulong, ulong[]) testCase)
 		{
@@ -113,8 +112,7 @@ namespace PrimesAndFactorizationTests
 		public void AreCoPrimePositiveTest()
 		{
 			var primeFactors = PrimeTestHelper.GetNDifferentRandomPrimes(10, 50).ToList();
-			primeFactors.Shuffle();
-			
+			primeFactors.Shuffle();			
 
 			NumberAndPrimeFactors n1 = new(primeFactors.Take(5), PRIME_FACTOR_LIMIT);
 			NumberAndPrimeFactors n2 = new(primeFactors.TakeLast(5), PRIME_FACTOR_LIMIT);
@@ -122,6 +120,49 @@ namespace PrimesAndFactorizationTests
 			bool result = _factorizator.AreCoPrime(n1.Number, n2.Number);
 			
 			Assert.That(result, Is.True);
+		}
+
+		[Test]
+		[Repeat(20)]
+		public void AreCoPrimeNegativeTest()
+		{
+			var primeFactors = PrimeTestHelper.GetNDifferentRandomPrimes(10, 40).ToList();
+			primeFactors.Shuffle();
+
+			var n1FactorsList = primeFactors.Take(5).ToList();
+			var n2FactorsList = primeFactors.TakeLast(5).ToList();
+
+			var extraFactors = PrimeTestHelper.GetNDifferentRandomPrimes(3, 25).ToList();
+			n1FactorsList.AddRange(extraFactors);
+			n2FactorsList.AddRange(extraFactors);
+
+			NumberAndPrimeFactors n1 = new(n1FactorsList, PRIME_FACTOR_LIMIT);
+			NumberAndPrimeFactors n2 = new(n2FactorsList, PRIME_FACTOR_LIMIT);
+
+			var n1FactorSet = n1.PrimeFactors.ToHashSet();
+			var n2FactorSet = n2.PrimeFactors.ToHashSet();
+			bool expectedResult = n1FactorSet.Intersect(n2FactorSet).Count() == 0;
+
+			bool result = _factorizator.AreCoPrime(n1.Number, n2.Number);
+
+			Assert.That(result, Is.EqualTo(expectedResult));
+		}
+
+		[TestCase(10UL, 30)]
+		[TestCase(2UL, 8)]
+		[TestCase(11UL, 11)]
+		[TestCase(36UL, 12)]
+		[TestCase(120UL, 12)]
+		[TestCase((ulong)Int32.MaxValue * 2UL + 1, 20)]
+		public void GetCoPrimesTest(ulong toWhat, int coPrimeUpperLimit)
+		{
+			var expectedResult = Enumerable.Range(1, coPrimeUpperLimit)
+				.Where(x => _factorizator.AreCoPrime((ulong)x, toWhat))
+				.ToArray();
+
+			var result = _factorizator.GetCoPrimes(toWhat, (ulong)coPrimeUpperLimit);
+
+			CollectionAssert.AreEquivalent(expectedResult, result);
 		}
 	}
 }

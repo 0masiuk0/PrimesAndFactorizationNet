@@ -106,39 +106,38 @@ namespace PrimesAndFactorizationNet
 
 			for(int i = 0; i < bitArrayCount-1; i++)
 			{
-				sieveSegments[i] = new(int.MaxValue);
-				sieveSegments[i].SetAll(true);
+				sieveSegments[i] = new(int.MaxValue, true);
 			}
 
 			int lastBitArrayBitCount = (int)(upperLimit - (ulong)int.MaxValue * (ulong)(bitArrayCount - 1));
-			sieveSegments[bitArrayCount - 1] = new(lastBitArrayBitCount);
+			BitArray lastSegment = new(lastBitArrayBitCount, true);
+			sieveSegments[bitArrayCount - 1] = lastSegment;
 
 			foreach(var factor in distinctFactorsOfN)
 			{
-				var index = CalculateSegmentIndex(factor - 1, int.MaxValue);
-				sieveSegments[index.Item1][index.Item2] = false;
 				checked
 				{
 					try
 					{
-						for (ulong j = factor * factor - 1; j < upperLimit; j += factor)
+						for (ulong j = factor; j <= upperLimit; j += factor)
 						{
-							index = CalculateSegmentIndex(factor - 1, int.MaxValue);
+							var index = CalculateSegmentIndex(j, int.MaxValue);
 							sieveSegments[index.Item1][index.Item2] = false;
 						}
 					}
 					catch(OverflowException)
 					{ }
-				}
-				for(int i = 0; i < bitArrayCount; i++)
+				}								
+			}
+
+			for (int i = 0; i < bitArrayCount; i++)
+			{
+				int bitCountHere = i == bitArrayCount - 1 ? lastBitArrayBitCount : int.MaxValue;
+				for (int j = 0; j < bitCountHere; j++)
 				{
-					int bitCountHere = i == bitArrayCount - 1 ? lastBitArrayBitCount : int.MaxValue;
-					for(int j = 0; j < bitCountHere; j++)
-					{
-						if (sieveSegments[i][j])
-							coPrimes.Add((ulong)i * (ulong)int.MaxValue + (ulong)j);
-					}
-				}				
+					if (sieveSegments[i][j])
+						coPrimes.Add((ulong)i * (ulong)int.MaxValue + (ulong)j + 1);
+				}
 			}
 
 			return coPrimes;
@@ -176,10 +175,10 @@ namespace PrimesAndFactorizationNet
 		
 		#region helpers
 
-		private static (int, int) CalculateSegmentIndex(ulong index, int segmentLength)
+		private static (int, int) CalculateSegmentIndex(ulong number, int segmentLength)
 		{
-			int segmentNumber = (int)(index / (ulong)segmentLength);
-			int indexInSegment = (int)(index - (ulong)segmentLength * (ulong)segmentNumber);
+			int segmentNumber = (int)(number / (ulong)segmentLength);
+			int indexInSegment = (int)(number - (ulong)segmentLength * (ulong)segmentNumber) - 1;
 			return new(segmentNumber, indexInSegment);
 		}
 
