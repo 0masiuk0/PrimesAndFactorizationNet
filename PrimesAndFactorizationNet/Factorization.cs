@@ -57,7 +57,9 @@ namespace PrimesAndFactorizationNet
 					powersOfFactors[primeFactor]++;
 			}
 			return powersOfFactors;
-		}	
+		}
+
+		public IEnumerable<ulong> GetDistinctPrimeFactors(ulong number) => GetPrimeFactors(number).Distinct();		
 
 		private IEnumerable<ulong> GetAllFactorsFromPrimePoweresDictionary(Dictionary<ulong, int> powers)
 		{

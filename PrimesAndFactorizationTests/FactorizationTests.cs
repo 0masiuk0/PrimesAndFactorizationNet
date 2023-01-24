@@ -47,9 +47,20 @@ namespace PrimesAndFactorizationTests
 				.Select(x => (x, factors.Count(y => y==x)))
 				.ToDictionary(z => z.Item1, u => u.Item2);
 
-			Dictionary<ulong,int> result = _factorizator.FactorizeAsPowersOfPrimes(testNumber.Number);
+			Dictionary<ulong,int> result = _factorizator.GetPrimeFactorsToPowersDictionary(testNumber.Number);
 
 			Assert.That(expectedResult, Is.EqualTo(result).AsCollection);
+		}
+
+		[Test]
+		[Repeat(10)]
+		public void GetDistinctPrimeNumbersTest()
+		{
+			NumberAndPrimeFactors mockNumber = PrimeTestHelper.ComposeRandomNumber(_rnd.Next(1, 10), 10, COMPOSITE_NUMBER_LIMIT);
+			var expectedResult = mockNumber.PrimeFactors.Distinct().ToList();
+			var result = _factorizator.GetDistinctPrimeFactors(mockNumber.Number).ToList();
+
+			Assert.That(result, Is.EqualTo(expectedResult));
 		}
 
 		private class GetFactorsTestSource : IEnumerable<(ulong, ulong[])>
@@ -186,7 +197,7 @@ namespace PrimesAndFactorizationTests
 		public void ReconstructNumberByPrimePowersTest()
 		{
 			NumberAndPrimeFactors mockNumber = PrimeTestHelper.ComposeRandomNumber(7,10,COMPOSITE_NUMBER_LIMIT);
-			var powers = _factorizator.FactorizeAsPowersOfPrimes(mockNumber.Number);
+			var powers = _factorizator.GetPrimeFactorsToPowersDictionary(mockNumber.Number);
 			var result = _factorizator.ReconstructNumberByPrimePowers(powers);
 
 			Assert.That(result, Is.EqualTo(mockNumber.Number));
