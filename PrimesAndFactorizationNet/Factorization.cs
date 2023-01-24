@@ -57,9 +57,7 @@ namespace PrimesAndFactorizationNet
 					powersOfFactors[primeFactor]++;
 			}
 			return powersOfFactors;
-		}
-
-		public IEnumerable<ulong> GetAllFactors(ulong number) => GetAllFactorsFromPrimePoweresDictionary(FactorizeAsPowersOfPrimes(number));		
+		}	
 
 		private IEnumerable<ulong> GetAllFactorsFromPrimePoweresDictionary(Dictionary<ulong, int> powers)
 		{
@@ -84,6 +82,10 @@ namespace PrimesAndFactorizationNet
 			}
 		}
 
+		public IEnumerable<ulong> GetAllFactors(ulong number) => GetAllFactorsFromPrimePoweresDictionary(FactorizeAsPowersOfPrimes(number));		
+
+		public IEnumerable<ulong> GetProperFactors(ulong number) => GetAllFactors(number).SkipLast(1);
+
 		public IEnumerable<ulong> GetCommonFactors(params ulong[] numbers)
 		{
 			var commonPrimesDictionary = GetCommonPrimesDictionary(numbers);
@@ -93,13 +95,12 @@ namespace PrimesAndFactorizationNet
 
 		public bool AreCoPrime(params ulong[] numbers)
 		{
-			var commonFactors = GetCommonFactors(numbers).ToArray();
-			return commonFactors.Length == 1 && commonFactors[0] == 1;
+			var commonFactors = GetCommonPrimesDictionary(numbers);
+			return commonFactors.Count == 0;
 		}
 
-		public List<ulong> GetCoPrimes(ulong N, ulong upperLimit)
-		{
-			List<ulong> coPrimes = new();
+		public IEnumerable<ulong> GetCoPrimes(ulong N, ulong upperLimit)
+		{			
 			var distinctFactorsOfN = GetPrimeFactors(N).Distinct().ToArray();
 			int bitArrayCount = (int)(upperLimit / (ulong)int.MaxValue) + 1;
 			BitArray[] sieveSegments = new BitArray[bitArrayCount];
@@ -136,11 +137,9 @@ namespace PrimesAndFactorizationNet
 				for (int j = 0; j < bitCountHere; j++)
 				{
 					if (sieveSegments[i][j])
-						coPrimes.Add((ulong)i * (ulong)int.MaxValue + (ulong)j + 1);
+						yield return (ulong)i * (ulong)int.MaxValue + (ulong)j + 1;
 				}
 			}
-
-			return coPrimes;
 		}		
 
 		public ulong ReconstructNumberByPrimePowers(Dictionary<ulong, int> powers)
@@ -153,7 +152,7 @@ namespace PrimesAndFactorizationNet
 			return result;
 		}		
 
-		public IEnumerable<ulong> GetProperFactors(ulong number) => GetAllFactors(number).SkipLast(1);
+		
 
 		public ulong GetGreatestCommonDenominator(params ulong[] numbers)
 		{
