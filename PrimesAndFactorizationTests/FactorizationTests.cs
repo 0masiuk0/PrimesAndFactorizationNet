@@ -173,7 +173,7 @@ namespace PrimesAndFactorizationTests
 		[TestCase(10UL * 223UL, 10UL * 601UL, 10UL)]		
 		public void GetGreatestCommonDenominatorTest(params ulong[] testCase)
 		{
-			ulong[] numbers = testCase.SkipLast(1);
+			ulong[] numbers = testCase.SkipLast(1).ToArray();
 			ulong expectedResult = testCase.Last();
 
 			ulong result = _factorizator.GetGreatestCommonDenominator(numbers);
@@ -186,10 +186,10 @@ namespace PrimesAndFactorizationTests
 		public void ReconstructNumberByPrimePowersTest()
 		{
 			NumberAndPrimeFactors mockNumber = PrimeTestHelper.ComposeRandomNumber(7,10,COMPOSITE_NUMBER_LIMIT);
-			var powers = _factorizator.FactorizeAsPowersOfPrimes();
-			var result = _factorizator.ReconstructNumberByPrimePowers(mockNumber.Number);
+			var powers = _factorizator.FactorizeAsPowersOfPrimes(mockNumber.Number);
+			var result = _factorizator.ReconstructNumberByPrimePowers(powers);
 
-			CollectionAssert.AreEquivalent(powers, result);
+			Assert.That(result, Is.EqualTo(mockNumber.Number));
 		}
 	}
 }
