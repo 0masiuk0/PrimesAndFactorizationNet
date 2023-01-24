@@ -46,7 +46,7 @@ namespace PrimesAndFactorizationNet
 				yield return number;
 		}
 
-		public Dictionary<ulong, int> FactorizeAsPowersOfPrimes(ulong number)
+		public Dictionary<ulong, int> GetPrimeFactorsToPowersDictionary(ulong number)
 		{
 			Dictionary<ulong, int> powersOfFactors = new Dictionary<ulong, int>();			
 			foreach(ulong primeFactor in GetPrimeFactors(number))
@@ -82,7 +82,7 @@ namespace PrimesAndFactorizationNet
 			}
 		}
 
-		public IEnumerable<ulong> GetAllFactors(ulong number) => GetAllFactorsFromPrimePoweresDictionary(FactorizeAsPowersOfPrimes(number));		
+		public IEnumerable<ulong> GetAllFactors(ulong number) => GetAllFactorsFromPrimePoweresDictionary(GetPrimeFactorsToPowersDictionary(number));		
 
 		public IEnumerable<ulong> GetProperFactors(ulong number) => GetAllFactors(number).SkipLast(1);
 
@@ -203,7 +203,7 @@ namespace PrimesAndFactorizationNet
 
 		private Dictionary<ulong, int> GetCommonPrimesDictionary(params ulong[] numbers)
 		{
-			var numbersAsPrimesDict = (from num in numbers select FactorizeAsPowersOfPrimes(num)).ToList();
+			var numbersAsPrimesDict = (from num in numbers select GetPrimeFactorsToPowersDictionary(num)).ToList();
 
 			Dictionary<ulong, int> result = new();			
 			foreach(var primePowerPair in numbersAsPrimesDict[0])
