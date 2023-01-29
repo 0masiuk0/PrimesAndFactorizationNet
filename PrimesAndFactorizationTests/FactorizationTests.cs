@@ -202,5 +202,33 @@ namespace PrimesAndFactorizationTests
 
 			Assert.That(result, Is.EqualTo(mockNumber.Number));
 		}
+
+		[Test]
+		[Repeat(5)]
+		public void EulerTotientTest()
+		{
+			NumberAndPrimeFactors mockNumber = PrimeTestHelper.ComposeRandomNumber(7, 10, COMPOSITE_NUMBER_LIMIT);
+			//NumberAndPrimeFactors mockNumber = new NumberAndPrimeFactors(new ulong[] { 3, 3 });
+			var coPrimes = _factorizator.GetCoPrimes(mockNumber.Number, mockNumber.Number);
+			var result = _factorizator.GetEulerTotient(mockNumber.Number);
+			
+			Assert.That(result, Is.EqualTo(coPrimes.Count()));
+		}
+
+		[Test]
+		[Repeat(10)]
+		public void RadicalTest()
+		{
+			NumberAndPrimeFactors mockNumber = PrimeTestHelper.ComposeRandomNumber(7, 10, COMPOSITE_NUMBER_LIMIT);
+			ulong expectedResult = 1;
+			foreach(var distinctPrimeFactor in _factorizator.GetDistinctPrimeFactors(mockNumber.Number))
+			{
+				expectedResult *= distinctPrimeFactor;
+			}
+
+			ulong result = _factorizator.GetNumberRadical(mockNumber.Number);
+
+			Assert.That(result, Is.EqualTo(expectedResult));
+		}
 	}
 }

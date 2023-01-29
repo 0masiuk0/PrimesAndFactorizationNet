@@ -173,7 +173,19 @@ namespace PrimesAndFactorizationNet
 			
 			return commonPrimeFactors.Aggregate(1UL, (product, factor) => product * factor);
 		}
-		
+
+		public ulong GetEulerTotient(ulong number)
+		{			
+			foreach(ulong primeFactor in GetDistinctPrimeFactors(number))
+			{
+				number = number - number / primeFactor;
+			}
+			return number;
+		}
+
+		public ulong GetNumberRadical(ulong number) => 
+			GetDistinctPrimeFactors(number).Aggregate(1UL, (product, factor) => product * factor);
+
 		#region helpers
 
 		private static (int, int) CalculateSegmentIndex(ulong number, int segmentLength)
@@ -217,9 +229,7 @@ namespace PrimesAndFactorizationNet
 			}			
 
 			return result;
-		}
-
-		
+		}		
 		#endregion
 	}
 }

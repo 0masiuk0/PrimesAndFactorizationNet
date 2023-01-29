@@ -134,6 +134,11 @@ namespace PrimesAndFactorizationTests
             Number = number;
             PrimeFactors = primeFactors.ToList().OrderBy(s => s).ToArray();
         }
+
+        public override string ToString()
+        {
+            return Number.ToString();
+        }
     }    
 
     internal static class Shuffler
