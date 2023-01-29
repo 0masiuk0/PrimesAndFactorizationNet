@@ -28,11 +28,12 @@ namespace PrimesAndFactorizationNet
 				throw new ArgumentException($"Cached range of integers (<{UpperLimitOfPrimeFactors}) " +
 					$"may not be sufficient to factorize {number}");
 
+			if (number == 0)
+				throw new ArgumentException($"Cannot factorize zero.");
+
 			ulong currentLimit = upperLimit;
 			foreach(var prime in PrimesCache.Primes())
 			{
-				currentLimit = IntegerExponentiation.ISqrt(number);
-
 				if (prime > currentLimit)
 					break;
 
@@ -40,7 +41,9 @@ namespace PrimesAndFactorizationNet
 				{
 					yield return prime;
 					number = number / prime;
-				}				
+				}
+
+				currentLimit = IntegerExponentiation.ISqrt(number);
 			}
 			if (number != 1)
 				yield return number;
