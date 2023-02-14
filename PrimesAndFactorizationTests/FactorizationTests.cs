@@ -4,6 +4,7 @@ using NUnit.Framework.Constraints;
 using System.Collections;
 using System.Globalization;
 using System.Linq;
+using static System.Net.WebRequestMethods;
 
 namespace PrimesAndFactorizationTests
 {
@@ -24,6 +25,16 @@ namespace PrimesAndFactorizationTests
 
 			Assert.That(expectedResult.PrimeFactors, Is.EqualTo(result));
 		}
+
+		[Test]
+		public void FactorizationDoesNotHaveEnoghCacheExceptionTest()
+		{
+			ulong bigPrime = 1000907UL;
+			ulong testNumber = bigPrime * bigPrime * 11;
+			ActualValueDelegate<object> testDelegate = () => _factorizator.GetPrimeFactors(testNumber).ToArray();
+			Assert.That(testDelegate, Throws.TypeOf(typeof(NotEnoughPrimesInCasheException)));
+		}
+
 
 		[Test]
 		[Repeat(10)]
