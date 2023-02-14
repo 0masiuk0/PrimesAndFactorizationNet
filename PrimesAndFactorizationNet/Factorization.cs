@@ -21,32 +21,37 @@ namespace PrimesAndFactorizationNet
 		}
 
 		public IEnumerable<ulong> GetPrimeFactors(ulong number)
-		{			
-			ulong upperLimit = IntegerExponentiation.ISqrt(number);
-
-			if (upperLimit > UpperLimitOfPrimeFactors)
-				throw new ArgumentException($"Cached range of integers (<{UpperLimitOfPrimeFactors}) " +
-					$"may not be sufficient to factorize {number}");
+		{
+			ulong upperLimit;
 
 			if (number == 0)
 				throw new ArgumentException($"Cannot factorize zero.");
-
-			ulong currentLimit = upperLimit;
+	
 			foreach(var prime in PrimesCache.Primes())
 			{
-				if (prime > currentLimit)
+				upperLimit = IntegerExponentiation.ISqrt(number);
+
+				if (prime > upperLimit)
 					break;
 
 				while (number % prime == 0)
 				{
 					yield return prime;
 					number = number / prime;
-				}
-
-				currentLimit = IntegerExponentiation.ISqrt(number);
+				}				
 			}
 			if (number != 1)
-				yield return number;
+			{
+				if (number > UpperLimitOfPrimeFactors)
+				{
+					throw new NotEnoughPrimesInCasheException($"Cached range of integers (<{UpperLimitOfPrimeFactors}) " +
+					$"was not sufficient to factorize {number}");
+				}
+				else
+				{
+					yield return number;
+				}
+			}
 		}
 
 		public Dictionary<ulong, int> GetPrimeFactorsToPowersDictionary(ulong number)
@@ -234,5 +239,23 @@ namespace PrimesAndFactorizationNet
 			return result;
 		}		
 		#endregion
+	}
+
+	public class NotEnoughPrimesInCasheException : Exception
+	{
+		public NotEnoughPrimesInCasheException()
+			: base("Not enough primes cashed to perform operation.")
+		{
+		}
+
+		public NotEnoughPrimesInCasheException(string message)
+			: base(message)
+		{
+		}
+
+		public NotEnoughPrimesInCasheException(string message, Exception inner)
+			: base(message, inner)
+		{
+		}
 	}
 }

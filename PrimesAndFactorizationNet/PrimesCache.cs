@@ -79,7 +79,7 @@ namespace PrimesAndFactorizationNet
 			if (number <= _sievedRangeOfIntegers)
 				return _primes.ContainsKey(number);
 			else
-				throw new ArgumentOutOfRangeException("number", "Number is beyoned range of integers that has been checked for primes.");
+				throw new NotEnoughPrimesInCasheException("Number is beyoned range of integers that has been checked for primes.");
 		}
 
 		public static IEnumerable<ulong> PrimesBelowLimit(ulong limit)
@@ -92,14 +92,14 @@ namespace PrimesAndFactorizationNet
 					yield return prime;
 				}
 			else
-				throw new ArgumentOutOfRangeException("limit", "Limit is beyoned range of integers that has been checked for primes.");
+				throw new NotEnoughPrimesInCasheException("Limit is beyoned range of integers that has been checked for primes.");
 		}
 
 		public static IEnumerable<ulong> GetNPrimes(int N)
 		{
 			if (N > _primes.Count)
 			{
-				throw new ArgumentException($"Cache contains less then N ({N}) primes at the moment.");
+				throw new NotEnoughPrimesInCasheException($"Cache contains less then N ({N}) primes at the moment.");
 			}
 			using (var primesEnumerator = Primes().GetEnumerator())
 			{
