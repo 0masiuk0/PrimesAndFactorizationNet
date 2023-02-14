@@ -51,7 +51,7 @@ namespace PrimesAndFactorizationTests
 		public void GetNPrimesThrowSmallCacheExceptionTest()
 		{			
 			ActualValueDelegate<object> testDelegate = () => PrimesCache.GetNPrimes(1000).ToArray();
-			Assert.That(testDelegate, Throws.ArgumentException);
+			Assert.That(testDelegate, Throws.TypeOf(typeof(NotEnoughPrimesInCasheException)));
 		}
 
 		[TestCase(127UL)]
