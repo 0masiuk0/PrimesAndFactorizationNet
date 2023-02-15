@@ -40,9 +40,12 @@ namespace PrimesAndFactorizationNet
 					number = number / prime;
 				}				
 			}
+
 			if (number != 1)
 			{
-				if (number > UpperLimitOfPrimeFactors)
+				ulong highFactorLimitSquaredHighBits = System.Math.BigMul(UpperLimitOfPrimeFactors, UpperLimitOfPrimeFactors, out ulong highFactorLimitSquaredLowBits);
+
+				if (highFactorLimitSquaredHighBits == 0 && highFactorLimitSquaredLowBits < number)
 				{
 					throw new NotEnoughPrimesInCasheException($"Cached range of integers (<{UpperLimitOfPrimeFactors}) " +
 					$"was not sufficient to factorize {number}");
