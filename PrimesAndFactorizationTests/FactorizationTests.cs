@@ -35,6 +35,15 @@ namespace PrimesAndFactorizationTests
 			Assert.That(testDelegate, Throws.TypeOf(typeof(NotEnoughPrimesInCasheException)));
 		}
 
+		[Test]
+		public void FactorizationDoesNotHaveEnoghCacheNoExceptionTest()
+		{
+			ulong bigPrime = 1000907UL;
+			ulong testNumber = bigPrime * 11;
+			var result =_factorizator.GetPrimeFactors(testNumber).ToArray();
+			CollectionAssert.AreEquivalent(result, new[] { bigPrime, 11UL });
+		}
+
 
 		[Test]
 		[Repeat(10)]
