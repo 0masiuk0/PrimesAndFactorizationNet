@@ -138,20 +138,12 @@ namespace PrimesAndFactorizationNet
 			sieveSegments[bitArrayCount - 1] = lastSegment;
 
 			foreach(var factor in distinctFactorsOfN)
-			{
-				checked
+			{				
+				for (ulong j = factor; j <= upperLimit; j += factor)
 				{
-					try
-					{
-						for (ulong j = factor; j <= upperLimit; j += factor)
-						{
-							var index = CalculateSegmentIndex(j, int.MaxValue);
-							sieveSegments[index.Item1][index.Item2] = false;
-						}
-					}
-					catch(OverflowException)
-					{ }
-				}								
+					var index = CalculateSegmentIndex(j, int.MaxValue);
+					sieveSegments[index.Item1][index.Item2] = false;
+				}												
 			}
 
 			for (int i = 0; i < bitArrayCount; i++)
