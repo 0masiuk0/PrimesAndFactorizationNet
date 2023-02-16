@@ -57,6 +57,16 @@ namespace PrimesAndFactorizationNet
 			}
 		}
 
+		///<summary>
+		///50193 = 3*3*3*11*13*13
+		///
+		/// GetPrimeFactorsToPowersDictionary(50193UL)
+		/// will return dictionary with these key-value pairs:
+		///
+		/// 3: 3
+		/// 11: 1
+		/// 13: 2
+		///</summary>
 		public Dictionary<ulong, int> GetPrimeFactorsToPowersDictionary(ulong number)
 		{
 			Dictionary<ulong, int> powersOfFactors = new Dictionary<ulong, int>();			
