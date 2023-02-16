@@ -27,16 +27,16 @@ namespace PrimesAndFactorizationTests
 		}
 
 		[Test]
-		public void FactorizationDoesNotHaveEnoghCacheExceptionTest()
+		public void FactorizationDoesNotHaveEnoughCachedExceptionTest()
 		{
 			ulong bigPrime = 1000907UL;
-			ulong testNumber = bigPrime * bigPrime * 11;
+			ulong testNumber = checked(bigPrime * bigPrime * 11);
 			ActualValueDelegate<object> testDelegate = () => _factorizator.GetPrimeFactors(testNumber).ToArray();
 			Assert.That(testDelegate, Throws.TypeOf(typeof(NotEnoughPrimesInCasheException)));
 		}
 
 		[Test]
-		public void FactorizationDoesNotHaveEnoghCacheNoExceptionTest()
+		public void FactorizationDoesNotHaveEnoughCachedExceptionNoThrowTest()
 		{
 			ulong bigPrime = 1000907UL;
 			ulong testNumber = bigPrime * 11;
